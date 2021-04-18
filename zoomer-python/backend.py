@@ -1,5 +1,7 @@
 from __future__ import print_function
 import datetime
+import sched
+import time
 import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -39,9 +41,7 @@ def authenticate():
 def getNextTenEventsFromCal(service, calendarID):
 	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
 	#print('Getting the upcoming 10 events')
-	events_result = service.events().list(calendarId=calendarID, timeMin=now,
-										maxResults=10, singleEvents=True,
-										orderBy='startTime').execute()
+	events_result = service.events().list(calendarId=calendarID, timeMin=now, maxResults=10, singleEvents=True, orderBy='startTime').execute()
 	events = events_result.get('items', [])
 	if not events:
 		print('No upcoming events found.')
@@ -59,7 +59,7 @@ def getNextEvent(service, calendarID):
 	return temp_events
 
 
-# TODO: make this method (way) more robust
+# TODO: make this method (way) more robust (might be a future task)
 # (currently it assumes that if event location contains "zoom.us", the entire field is a valid zoom URL)
 # BACKEND FUNCTION
 # input event (assume "event" is an actual gcal event resource)
@@ -69,12 +69,12 @@ def isZoomEvent(event):
 	return event['location'].find("zoom.us")
 
 # BACKEND FUNCTION
-# return the next ten events from all calendars
+# TODO: return the next ten events from all calendars
 # important - these are the ten events that will be scheduled to launch
 def nextTenEvents(service):
 	counter = 0
-	#initialize list:
-	nextTenList = getNextTenPrimary(service)
+	#initialize list with next event from primary calendar:
+	nextTenList = getNextEvent(service, 'primary')
 	for calID in activeCals:
 		getNextTenEventsFromCal(service, calID)
 
@@ -82,7 +82,7 @@ def nextTenEvents(service):
 # set activeCals contains available calendars the user wishes to include
 # TODO: update activeCals when user selects/deselects calendars
 # (Jimmy this is pretty frontend so you should prob write this one)
-# (feel free to change what I put there, it's mostly placeholder)
+# (feel free to change what I put here, it's mostly placeholder)
 activeCals = set()
 def updateActiveCals(cal):
 	activeCals.add(cal)
@@ -95,10 +95,34 @@ def getCalList(service):
 	return service.calendarList().list().execute()
 	
 
+
+
+
+# We'll use this as the master schedule; keep it updated, etc.
+# TODO: Probably needs some kind of arguments passed in 
+eventQueue = sched.scheduler()
+
 # BACKEND FUNCTION
 # input zoom url and start time
 # TODO: schedule upcoming events
-# (Barış, add your scheduling function here once you finish it)
+# (Barış, replace this with your scheduling function with zoom call once you finish it)
+def scheduleEvent(eventUrl,eventStart):
+	#do stuff
+	return True
+
+# FRONTEND FUNCTION
+# see upcoming scheduled events
+# TODO: we likely will want to present the data more nicely for the user;
+# could be a front-end task
+def getQueue():
+	return eventQueue.queue
+
+# BACKEND FUNCTION
+# update every ~3 minutes while app is open
+def refresh(service):
+	#every 3-ish minutes, get next ten events from active calendars
+	nextTenEvents(service)
+	return True
 
 
 
@@ -108,5 +132,15 @@ def main():
 	creds = authenticate();
 	service = build('calendar', 'v3', credentials=creds)  # seems like a command for run time
 	
+	#probably something involving the connecting the backend to the frontend/interface goes here, idk
+
+	#scheduler object to check for updates every 3 minutes or so; not the same as the main event queue
+	refresher = sched.scheduler(time.time,time.sleep) #idk if the arguments are right
+	refresher.enter(180,3,refresh(service))
+	while True:  #infinite loop to keep it updating in the background; might want to find a better way though
+		refresher.run()
+
+
+
 if __name__ == '__main__':
 	main()
