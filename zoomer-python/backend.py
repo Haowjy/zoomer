@@ -55,14 +55,21 @@ def getNextTenEventsFromCal(service, calendarID):
 # (probably temporary) helper function
 def getNextTenPrimary(service):
 	now = datetime.datetime.utcnow().isoformat() + 'Z'
-	temp_result = service.events().list(calendarId='primary', timeMin=now,
-										maxResults=10, singleEvents=True,
-										orderBy='startTime').execute()
+	temp_result = service.events().list(calendarId='primary', timeMin=now, maxResults=10, singleEvents=True, orderBy='startTime').execute()
 	temp_events = temp_result.get('items', [])
 	return temp_events
 
+
+# BACKEND FUNCTION
+# input event (assume "event" is an actual gcal event resource)
+# returns boolean depending on whether inputted event is on zoom
+# (i.e. check if location field is a zoom link)
+def isZoomEvent(event):
+	return event['location'].find("zoom.us")
+
 # BACKEND FUNCTION
 # return the next ten events from all calendars
+# important - these are the ten events that will be scheduled to launch
 def nextTenEvents(service):
 	counter = 0
 	#initialize list:
@@ -81,7 +88,7 @@ def getCalList(service):
 	return service.calendarList().list().execute()
 	
 # BACKEND FUNCTION
-# I mean, it's main()
+# I mean, it's main(); the user shouldn't be poking at this interactively
 def main():
 	creds = authenticate();
 	service = build('calendar', 'v3', credentials=creds)  # seems like a command for run time
