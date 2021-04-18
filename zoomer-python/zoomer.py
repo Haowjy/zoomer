@@ -1,9 +1,6 @@
 from tkinter import *
 import tkinter as tk
 from PIL import ImageTk, Image
-import backend
-
-backend.main()
 
 root = Tk()
 
@@ -17,6 +14,9 @@ class ZoomClass():
          self.time = time
          self.meeting_id = meeting_id
          self.link = link
+    
+    def __str__(self):
+        return "title: %s, time: %s, id: %s, link:%s" %(self.title,self.time, self.meeting_id, self.link)
 
     def create_frame(self, master=None):
         entireFrame = Frame(master=master,bg="#2D8CFE")
@@ -97,15 +97,16 @@ titleFrame.pack()
 emptyFrame = Frame(frame, height=10,bg='#23314A')
 emptyFrame.pack()
 
-for i in range(10):
-    zoomClass = ZoomClass("Title of Cal %i"%i, "April some some\nsome thing er", "999 9999 9999", "https://weewf%i"%i)
-    zoomFrame = zoomClass.create_frame(frame)
-    zoomFrame.pack(padx=50,pady=5)
-
 
 # appFrame.pack()
 
 # canvas = Canvas(root, height=0, width=400, bg='#23314A', border=0)
 # canvas.pack()
 
-root.mainloop()
+def start(zoomClasses):
+    for c in zoomClasses:
+        print(c)
+        zoomFrame = c.create_frame(frame)
+        zoomFrame.pack(padx=50,pady=5)
+    
+    root.mainloop()

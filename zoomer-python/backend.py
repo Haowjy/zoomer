@@ -11,7 +11,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
-bkgSched = BackgroundScheduler()
+import zoomer
 
 # If modifying these scopes, go delete the token.json file (needs to generate a new one).
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -129,9 +129,17 @@ def refresh(service):
 	#every 3-ish minutes, get next ten events from active calendars
 	nextTenEvents(service)
 	print("refresh")
+	# zoomClasses = []
+	# for i in range(6):
+	# 	zoomClasses.append(zoomer.ZoomClass("Title of Cal %i"%i, "April some some\nsome thing er", "999 9999 9999", "https://weewf%i"%i))
+
+	# for c in zoomClasses:
+	# 	print(c)
+
+	# zoomer.start(zoomClasses)
 	return True
 
-refresher = BackgroundScheduler()
+bkgSched = BackgroundScheduler()
 
 # BACKEND FUNCTION
 # I mean, it's main(); the user shouldn't be poking at this interactively
@@ -140,8 +148,17 @@ def main():
 	creds = authenticate()
 	service = build('calendar', 'v3', credentials=creds)  # seems like a command for run time
 
-	bkgSched.add_job(lambda: refresh(service), 'interval', seconds=180)
+	bkgSched.add_job(lambda: refresh(service), 'interval', seconds=3)
 	bkgSched.start()
+
+	zoomClasses = []
+	for i in range(10):
+		zoomClasses.append(zoomer.ZoomClass("Title of Cal %i"%i, "April some some\nsome thing er", "999 9999 9999", "https://weewf%i"%i))
+
+	for c in zoomClasses:
+		print(c)
+
+	zoomer.start(zoomClasses)
 
 	# try:
 	# 	while True:
