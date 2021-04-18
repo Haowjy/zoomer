@@ -75,12 +75,20 @@ def isZoomEvent(event):
 # TODO: return the next ten events from all calendars
 # important - these are the ten events that will be scheduled to launch
 def nextTenEvents(service):
-	counter = 0
 	#initialize list with next event from primary calendar:
 	nextTenList = getNextEvent(service, 'primary')
+	priorityQueue = []
+	tempDict = {}
 	for calID in activeCals:
-		print(calID)
-		getNextTenEventsFromCal(service, calID)
+		tempDict[calID] = getNextTenEventsFromCal(service, calID)
+	for calID in tempDict:
+		for event in tempDict[calID]:
+			if isZoomEvent(event): #only add zoom events
+				priorityQueue.append(event['start'],event)
+	priorityQueue.sort()
+	for entry in priorityQueue[:10]:
+		nextTenList.append(entry[1])
+
 
 # FRONTEND FUNCTION
 # set activeCals contains available calendars the user wishes to include
@@ -103,11 +111,11 @@ def getCalList(service):
 eventQueue = BackgroundScheduler()
 
 # BACKEND FUNCTION
-# input zoom url and start time
+# input event with zoom url and start time
 # TODO: schedule upcoming events
 # (Barış, replace this with your scheduling function with zoom call once you finish it)
 # (note that we changed from sched.scheduler to apscheduler's BackgroundScheduler)
-def scheduleEvent(eventUrl,eventStart):
+def scheduleEvent(event):
 	#do stuff
 	return True
 
@@ -122,7 +130,7 @@ def getQueue():
 # BACKEND FUNCTION
 # update every ~3 minutes while app is open
 def refresh(service):
-	#every 3-ish minutes, get next ten events from active calendars
+	#get next ten events from active calendars
 	nextTenEvents(service)
 	print("refresh")
 	# zoomClasses = []
@@ -144,7 +152,7 @@ def main():
 	creds = authenticate()
 	service = build('calendar', 'v3', credentials=creds)  # seems like a command for run time
 
-	bkgSched.add_job(lambda: refresh(service), 'interval', seconds=3)
+	bkgSched.add_job(lambda: refresh(service), 'interval', seconds=60)
 	bkgSched.start()
 
 	zoomClasses = []
