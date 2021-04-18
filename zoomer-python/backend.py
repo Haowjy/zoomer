@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from apscheduler.schedulers.background import BackgroundScheduler
 
 # If modifying these scopes, go delete the token.json file (needs to generate a new one).
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -124,7 +125,7 @@ def refresh(service):
 	nextTenEvents(service)
 	return True
 
-
+refresher = BackgroundScheduler()
 
 # BACKEND FUNCTION
 # I mean, it's main(); the user shouldn't be poking at this interactively
@@ -135,11 +136,15 @@ def main():
 	#probably something involving the connecting the backend to the frontend/interface goes here, idk
 
 	#scheduler object to check for updates every 3 minutes or so; not the same as the main event queue
-	refresher = sched.scheduler(time.time,time.sleep) #idk if the arguments are right
-	refresher.enter(180,3,refresh(service))
-	while True:  #infinite loop to keep it updating in the background; might want to find a better way though
-		refresher.run()
-
+	# refresher = sched.scheduler(time.time,time.sleep) #idk if the arguments are right
+	refresher.add_job(refresh(service), 'interval', seconds=3)
+	refresher.start()
+	try:
+		while True:
+			time.sleep(2)
+	except (KeyboardInterrupt, SystemExit):
+		refresher.shutdown()
+	
 
 
 if __name__ == '__main__':
