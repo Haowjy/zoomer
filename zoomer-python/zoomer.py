@@ -4,6 +4,11 @@ from PIL import ImageTk, Image
 
 root = Tk()
 
+global zoomClasses
+zoomClasses = []
+global zoomFrames
+zoomFrames = []
+
 def goToZoom(link):
     print("TODO: went to zoom..."+str(link)+"...")
 
@@ -103,10 +108,21 @@ emptyFrame.pack()
 # canvas = Canvas(root, height=0, width=400, bg='#23314A', border=0)
 # canvas.pack()
 
-def start(zoomClasses):
+def putClasses(newZoomClasses):
+    global zoomFrames
+    for f in zoomFrames:
+        f.destroy()
+
+    global zoomClasses
+    zoomClasses = newZoomClasses
+
+    zoomFrames=[]
     for c in zoomClasses:
         print(c)
         zoomFrame = c.create_frame(frame)
+        zoomFrames.append(zoomFrame)
         zoomFrame.pack(padx=50,pady=5)
-    
+
+
+def start():
     root.mainloop()
