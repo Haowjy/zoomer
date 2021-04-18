@@ -125,7 +125,7 @@ def refresh(service):
 	#every 3-ish minutes, get next ten events from active calendars
 	nextTenEvents(service)
 	print("refresh")
-	
+
 	zoomClasses = []
 	for i in range(6):
 		zoomClasses.append(zoomer.ZoomClass("Title of Cal %i"%i, "April some some\nsome thing er", "999 9999 9999", "https://weewf%i"%i))
@@ -148,14 +148,8 @@ def main():
 	bkgSched.add_job(lambda: refresh(service), 'interval', seconds=3)
 	bkgSched.start()
 
-	zoomClasses = []
-	for i in range(10):
-		zoomClasses.append(zoomer.ZoomClass("Title of Cal %i"%i, "April some some\nsome thing er", "999 9999 9999", "https://weewf%i"%i))
+	refresh(service)
 
-	for c in zoomClasses:
-		print(c)
-
-	zoomer.putClasses(zoomClasses)
 	zoomer.start()
 
 	# try:
