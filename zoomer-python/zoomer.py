@@ -34,7 +34,7 @@ class ZoomClass():
 
     
     def __str__(self):
-        return "title: %s, time: %s, id: %s, link:%s" %(self.title,self.time, self.meeting_id, self.link)
+        return "title: %s, time: %s, link:%s" %(self.title, self.time, self.link)
 
     def create_frame(self, master=None):
         entireFrame = Frame(master=master,bg="#2D8CFE")
@@ -55,7 +55,7 @@ class ZoomClass():
 
         bottomFrame = Frame(master=entireFrame,borderwidth=3, bg="#2D8CFE")
 
-        leftSide = Label(master=bottomFrame,text=self.meeting_id, fg="#F4F4EB", bg="#23314A")
+        # leftSide = Label(master=bottomFrame,text=self.meeting_id, fg="#F4F4EB", bg="#23314A")
         leftSide.grid(column=0, row=0,columnspan=9, sticky='w')
         leftSide.bind("<Button-1>", lambda e : goToZoom(link=self.link))
         centerLine = Label(master=bottomFrame, text="|", fg="#F4F4EB", bg="#2D8CFE")
