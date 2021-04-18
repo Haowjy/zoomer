@@ -8,6 +8,10 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
+from apscheduler.schedulers.background import BackgroundScheduler
+
+bkgSched = BackgroundScheduler()
+
 # If modifying these scopes, go delete the token.json file (needs to generate a new one).
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
@@ -76,6 +80,7 @@ def nextTenEvents(service):
 	#initialize list with next event from primary calendar:
 	nextTenList = getNextEvent(service, 'primary')
 	for calID in activeCals:
+		print(calID)
 		getNextTenEventsFromCal(service, calID)
 
 # FRONTEND FUNCTION
@@ -122,6 +127,7 @@ def getQueue():
 def refresh(service):
 	#every 3-ish minutes, get next ten events from active calendars
 	nextTenEvents(service)
+	print("refresh")
 	return True
 
 
@@ -129,17 +135,19 @@ def refresh(service):
 # BACKEND FUNCTION
 # I mean, it's main(); the user shouldn't be poking at this interactively
 def main():
+	
 	creds = authenticate()
 	service = build('calendar', 'v3', credentials=creds)  # seems like a command for run time
-	
-	#probably something involving the connecting the backend to the frontend/interface goes here, idk
 
-	#scheduler object to check for updates every 3 minutes or so; not the same as the main event queue
-	refresher = sched.scheduler(time.time,time.sleep) #idk if the arguments are right
-	refresher.enter(180,3,refresh(service))
-	while True:  #infinite loop to keep it updating in the background; might want to find a better way though
-		refresher.run()
+	bkgSched.add_job(lambda: refresh(service), 'interval', seconds=180)
+	bkgSched.start()
 
+	# try:
+	# 	while True:
+	# 		print("zzzz")
+	# 		time.sleep(2)
+	# except(KeyboardInterrupt, SystemExit):
+	# 	bkgSched.shutdown()
 
 
 if __name__ == '__main__':
