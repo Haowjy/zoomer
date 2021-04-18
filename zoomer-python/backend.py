@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -130,7 +131,7 @@ def refresh(service):
 	print("refresh")
 	return True
 
-
+refresher = BackgroundScheduler()
 
 # BACKEND FUNCTION
 # I mean, it's main(); the user shouldn't be poking at this interactively
