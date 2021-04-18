@@ -69,7 +69,8 @@ def getNextEvent(service, calendarID):
 # returns boolean depending on whether inputted event is on zoom
 # (i.e. check if location field is a zoom link)
 def isZoomEvent(event):
-	return event['location'].find("zoom.us")
+	loc = event.location
+	return loc.find("zoom.us")
 
 # BACKEND FUNCTION
 # TODO: return the next ten events from all calendars
@@ -88,6 +89,7 @@ def nextTenEvents(service):
 	priorityQueue.sort()
 	for entry in priorityQueue[:10]:
 		nextTenList.append(entry[1])
+	return nextTenList
 
 
 # FRONTEND FUNCTION
@@ -95,7 +97,7 @@ def nextTenEvents(service):
 # TODO: update activeCals when user selects/deselects calendars
 # (Jimmy this is pretty frontend so you should prob write this one)
 # (feel free to change what I put here, it's mostly placeholder)
-activeCals = set()
+activeCals = {'primary',}
 def updateActiveCals(cal):
 	activeCals.add(cal)
 	#stuff goes here
@@ -155,6 +157,7 @@ def main():
 	creds = authenticate()
 	service = build('calendar', 'v3', credentials=creds)  # seems like a command for run time
 
+	print(activeCals)
 	bkgSched.add_job(lambda: refresh(service), 'interval', seconds=60)
 	bkgSched.start()
 
