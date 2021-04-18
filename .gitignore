@@ -89,3 +89,5 @@ typings/
 out/
 
 creds.json
+credentials.json
+token.json
