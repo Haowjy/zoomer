@@ -76,7 +76,7 @@ def isZoomEvent(event):
 # important - these are the ten events that will be scheduled to launch
 def nextTenEvents(service):
 	#initialize list with next event from primary calendar:
-	nextTenList = getNextEvent(service, 'primary')
+	nextTenList = []
 	priorityQueue = []
 	tempDict = {}
 	for calID in activeCals:
@@ -131,12 +131,14 @@ def getQueue():
 # update every ~3 minutes while app is open
 def refresh(service):
 	#get next ten events from active calendars
-	nextTenEvents(service)
+	events = nextTenEvents(service)
 	print("refresh")
 
 	zoomClasses = []
-	for i in range(6):
-		zoomClasses.append(zoomer.ZoomClass("Title of Cal %i"%i, "April some some\nsome thing er", "999 9999 9999", "https://weewf%i"%i))
+	# for i in range(6):
+	for e in events:
+		zoomClasses.append(zoomer.ZoomClass(e['summary'], e['start.dateTime'], '', e['location']))
+		# zoomClasses.append(zoomer.ZoomClass("Title of Cal %i"%i, "April some some\nsome thing er", "999 9999 9999", "https://weewf%i"%i))
 
 	for c in zoomClasses:
 		print(c)
