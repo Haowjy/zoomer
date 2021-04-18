@@ -6,7 +6,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
-# If modifying these scopes, delete the file token.json (needs to generate a new one).
+# If modifying these scopes, go delete the token.json file (needs to generate a new one).
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 
@@ -43,7 +43,6 @@ def getNextTenEventsFromCal(service, calendarID):
 										maxResults=10, singleEvents=True,
 										orderBy='startTime').execute()
 	events = events_result.get('items', [])
-
 	if not events:
 		print('No upcoming events found.')
 	for event in events:
@@ -51,15 +50,17 @@ def getNextTenEventsFromCal(service, calendarID):
 		print(start, event['summary'])
 
 # BACKEND FUNCTION
-# get next ten events from primary calendar
-# (probably temporary) helper function
-def getNextTenPrimary(service):
+# get next event from specified calendar
+# (potentially temporary) helper function
+def getNextEvent(service, calendarID):
 	now = datetime.datetime.utcnow().isoformat() + 'Z'
-	temp_result = service.events().list(calendarId='primary', timeMin=now, maxResults=10, singleEvents=True, orderBy='startTime').execute()
+	temp_result = service.events().list(calendarId=calendarID, timeMin=now, maxResults=1, singleEvents=True, orderBy='startTime').execute()
 	temp_events = temp_result.get('items', [])
 	return temp_events
 
 
+# TODO: make this method (way) more robust
+# (currently it assumes that if event location contains "zoom.us", the entire field is a valid zoom URL)
 # BACKEND FUNCTION
 # input event (assume "event" is an actual gcal event resource)
 # returns boolean depending on whether inputted event is on zoom
@@ -74,12 +75,18 @@ def nextTenEvents(service):
 	counter = 0
 	#initialize list:
 	nextTenList = getNextTenPrimary(service)
-	for calID in zoomerCalList:
+	for calID in activeCals:
 		getNextTenEventsFromCal(service, calID)
 
-zoomerCalList = set()
-def editZoomerCalList():
-	zoomerCalList.add(cal)
+# FRONTEND FUNCTION
+# set activeCals contains available calendars the user wishes to include
+# TODO: update activeCals when user selects/deselects calendars
+# (Jimmy this is pretty frontend so you should prob write this one)
+# (feel free to change what I put there, it's mostly placeholder)
+activeCals = set()
+def updateActiveCals(cal):
+	activeCals.add(cal)
+	#stuff goes here
 
 # BACKEND FUNCTION
 # returns a set containing all the calendars the user has access to
@@ -87,6 +94,14 @@ def editZoomerCalList():
 def getCalList(service):
 	return service.calendarList().list().execute()
 	
+
+# BACKEND FUNCTION
+# input zoom url and start time
+# TODO: schedule upcoming events
+# (Barış, add your scheduling function here once you finish it)
+
+
+
 # BACKEND FUNCTION
 # I mean, it's main(); the user shouldn't be poking at this interactively
 def main():
