@@ -6,11 +6,13 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
-# If modifying these scopes, delete the file token.json.
+# If modifying these scopes, delete the file token.json (needs to generate a new one).
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 
-# BACKEND FUNCTION authenticate(): either let user log in, or continue if already logged in
+# BACKEND FUNCTION
+# (from quickstart.py; don't touch this, it makes oauth work)
+# either let user log in, or continue if already logged in
 # returns creds (auth obj from json)
 def authenticate():  
 	creds = None
@@ -31,7 +33,10 @@ def authenticate():
 			token.write(creds.to_json())
 	return creds
 
-def getNextTenEventsFromCal(service, calendarID):  # exactly what it says on the tin
+# FRONTEND FUNCTION
+# (from quickstart.py; probably won't keep this but for now it's useful for reference)
+# prints out the next ten events from a specified calendar
+def getNextTenEventsFromCal(service, calendarID):
 	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
 	#print('Getting the upcoming 10 events')
 	events_result = service.events().list(calendarId=calendarID, timeMin=now,
@@ -43,21 +48,43 @@ def getNextTenEventsFromCal(service, calendarID):  # exactly what it says on the
 		print('No upcoming events found.')
 	for event in events:
 		start = event['start'].get('dateTime', event['start'].get('date'))
-		print(start, event['summary'])	
+		print(start, event['summary'])
+
+# BACKEND FUNCTION
+# get next ten events from primary calendar
+# (probably temporary) helper function
+def getNextTenPrimary(service):
+	now = datetime.datetime.utcnow().isoformat() + 'Z'
+	temp_result = service.events().list(calendarId='primary', timeMin=now,
+										maxResults=10, singleEvents=True,
+										orderBy='startTime').execute()
+	temp_events = temp_result.get('items', [])
+	return temp_events
+
+# BACKEND FUNCTION
+# return the next ten events from all calendars
+def nextTenEvents(service):
+	counter = 0
+	#initialize list:
+	nextTenList = getNextTenPrimary(service)
+	for calID in zoomerCalList:
+		getNextTenEventsFromCal(service, calID)
 
 zoomerCalList = set()
-def addCalToZoomerCalList(cal):
+def editZoomerCalList():
 	zoomerCalList.add(cal)
 
-def getCalList(service):  # return a set containing all the calendars the user has access to
+# BACKEND FUNCTION
+# returns a set containing all the calendars the user has access to
+# (use this to provide the list of possible calendars to the user)
+def getCalList(service):
 	return service.calendarList().list().execute()
 	
+# BACKEND FUNCTION
+# I mean, it's main()
 def main():
 	creds = authenticate();
 	service = build('calendar', 'v3', credentials=creds)  # seems like a command for run time
-
-	for calID in zoomerCalList:
-		getNextTenEventsFromCal(service, calID)
 	
 if __name__ == '__main__':
 	main()
