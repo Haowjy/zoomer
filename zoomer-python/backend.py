@@ -8,9 +8,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from apscheduler.schedulers.background import BackgroundScheduler
-
-from apscheduler.schedulers.background import BackgroundScheduler
-
 import zoomer
 
 # If modifying these scopes, go delete the token.json file (needs to generate a new one).
@@ -53,6 +50,7 @@ def getNextTenEventsFromCal(service, calendarID):
 	for event in events:
 		start = event['start'].get('dateTime', event['start'].get('date'))
 		print(start, event['summary'])
+	return events
 
 # BACKEND FUNCTION
 # get next event from specified calendar
@@ -99,19 +97,16 @@ def updateActiveCals(cal):
 # (use this to provide the list of possible calendars to the user)
 def getCalList(service):
 	return service.calendarList().list().execute()
-	
-
-
 
 
 # We'll use this as the master schedule; keep it updated, etc.
-# TODO: Probably needs some kind of arguments passed in 
-eventQueue = sched.scheduler()
+eventQueue = BackgroundScheduler()
 
 # BACKEND FUNCTION
 # input zoom url and start time
 # TODO: schedule upcoming events
 # (Barış, replace this with your scheduling function with zoom call once you finish it)
+# (note that we changed from sched.scheduler to apscheduler's BackgroundScheduler)
 def scheduleEvent(eventUrl,eventStart):
 	#do stuff
 	return True
@@ -121,7 +116,8 @@ def scheduleEvent(eventUrl,eventStart):
 # TODO: we likely will want to present the data more nicely for the user;
 # could be a front-end task
 def getQueue():
-	return eventQueue.queue
+	eventQueue.print_jobs()
+	return eventQueue.get_jobs()
 
 # BACKEND FUNCTION
 # update every ~3 minutes while app is open
