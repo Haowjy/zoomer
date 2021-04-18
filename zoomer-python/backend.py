@@ -9,7 +9,10 @@ from google.oauth2.credentials import Credentials
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
-def authenticate():  # either let user log in, or continue if already logged in
+
+# BACKEND FUNCTION authenticate(): either let user log in, or continue if already logged in
+# returns creds (auth obj from json)
+def authenticate():  
 	creds = None
 	# The file token.json stores the user's access and refresh tokens, and is
 	# created automatically when the authorization flow completes for the first
@@ -43,8 +46,8 @@ def getNextTenEventsFromCal(service, calendarID):  # exactly what it says on the
 		print(start, event['summary'])	
 
 zoomerCalList = set()
-zoomerCalList.add("ashtonsopher@gmail.com")
-zoomerCalList.add("merih.uctum@gmail.com")
+def addCalToZoomerCalList(cal):
+	zoomerCalList.add(cal)
 
 def getCalList(service):  # return a set containing all the calendars the user has access to
 	return service.calendarList().list().execute()
