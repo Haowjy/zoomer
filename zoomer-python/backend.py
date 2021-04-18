@@ -136,7 +136,7 @@ def refresh(service):
 
 	zoomClasses = []
 	for i in range(6):
-		zoomClasses.append(zoomer.ZoomClass("Title of Cal %i"%i, "April some some\nsome thing er", "999 9999 9999", "https://weewf%i"%i))
+		zoomClasses.append(zoomer.ZoomClass("Title of Cal %i"%i, "April some some\nsome thing er", "https://rochester.zoom.us/j/99999999999?pwd=M2VkaVZsK2Z2SWFPbzN6VldDOWFyUT09"))
 
 	for c in zoomClasses:
 		print(c)

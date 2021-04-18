@@ -1,6 +1,8 @@
 from tkinter import *
 import tkinter as tk
 from PIL import ImageTk, Image
+from urllib.parse import urlparse
+import re
 
 root = Tk()
 
@@ -14,11 +16,22 @@ def goToZoom(link):
 
 class ZoomClass():
 
-    def __init__(self, title, time, meeting_id, link):
-         self.title = title
-         self.time = time
-         self.meeting_id = meeting_id
-         self.link = link
+    def __init__(self, title, time, link):
+        self.title = title
+        self.time = time
+        self.link = link
+        o = urlparse(link)
+        print(o.path)
+        all = re.findall(r"\d{11}",o.path)
+        id = all[len(all)-1]
+        self.meeting_id = ""
+        for i,c in enumerate(id):
+            print(i)
+            if(i==3 or i == 7):
+                print("hihi")
+                self.meeting_id += " "
+            self.meeting_id += str(c)
+
     
     def __str__(self):
         return "title: %s, time: %s, id: %s, link:%s" %(self.title,self.time, self.meeting_id, self.link)
