@@ -129,7 +129,7 @@ def refresh(service):
 # BACKEND FUNCTION
 # I mean, it's main(); the user shouldn't be poking at this interactively
 def main():
-	creds = authenticate();
+	creds = authenticate()
 	service = build('calendar', 'v3', credentials=creds)  # seems like a command for run time
 	
 	#probably something involving the connecting the backend to the frontend/interface goes here, idk
