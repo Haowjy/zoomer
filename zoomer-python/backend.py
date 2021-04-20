@@ -69,8 +69,9 @@ def getNextEvent(service, calendarID):
 # returns boolean depending on whether inputted event is on zoom
 # (i.e. check if location field is a zoom link)
 def isZoomEvent(event):
-	loc = event.location
-	return loc.find("zoom.us")
+	if 'location' in event:
+		loc = event['location']
+		return loc.find("zoom.us")
 
 # BACKEND FUNCTION
 # TODO: return the next ten events from all calendars
@@ -85,7 +86,9 @@ def nextTenEvents(service):
 	for calID in tempDict:
 		for event in tempDict[calID]:
 			if isZoomEvent(event): #only add zoom events
-				priorityQueue.append(event['start'],event)
+				start = event['start']
+				stime = start['dateTime']
+				priorityQueue.append((stime, event))
 	priorityQueue.sort()
 	for entry in priorityQueue[:10]:
 		nextTenList.append(entry[1])
@@ -137,10 +140,10 @@ def refresh(service):
 	print("refresh")
 
 	zoomClasses = []
-	# for i in range(6):
 	for e in events:
-		zoomClasses.append(zoomer.ZoomClass(e['summary'], e['start.dateTime'], '', e['location']))
-		# zoomClasses.append(zoomer.ZoomClass("Title of Cal %i"%i, "April some some\nsome thing er", "999 9999 9999", "https://weewf%i"%i))
+		temp = e['start']
+		stime = temp['dateTime']
+		zoomClasses.append(zoomer.ZoomClass(e['summary'], stime, e['location']))
 
 	for c in zoomClasses:
 		print(c)
